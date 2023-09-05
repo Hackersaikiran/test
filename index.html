@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Data Example</title>
+    <link rel="stylesheet" href="styles001.css">
+</head>
+
+<body>
+    <h1>Filter JSON Data</h1>
+
+    <form id="filter-form">
+        <label for="filter-key">Enter Key:</label>
+        <input type="text" id="filter-key" name="filter-key">
+        <br>
+        <label for="filter-value">Enter Maximum Value:</label>
+        <input type="number" id="filter-value" name="filter-value">
+        <br>
+        <label for="branch-value">Enter Branch Value:</label>
+        <input type="text" id="branch-value" name="branch-value">
+        <br>
+        <label for="num-items">Number of Items to Display:</label>
+        <input type="number" id="num-items" name="num-items" min="1" value="5">
+        <br>
+        <button type="submit">Filter</button>
+    </form>
+    <table id="filtered-table">
+        <thead>
+            <tr>
+                <th>#</th> <!-- Add a column for serial numbers -->
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        // Fetch JSON data from data.json
+        fetch('data5.json')
+            .then(response => response.json())
+            .then(data => {
+                const filteredTable = document.getElementById('filtered-table');
+                const tableHead = filteredTable.querySelector('thead tr');
+                const tableBody = filteredTable.querySelector('tbody');
+                const filterForm = document.getElementById('filter-form');
+
+                filterForm.addEventListener('submit', function (event) {
+                    event.preventDefault();
+
+                    // Get the key, maximum value, branch value, and number of items from user input
+                    const filterKey = document.getElementById('filter-key').value;
+                    const filterValue = parseFloat(document.getElementById('filter-value').value);
+                    const branchValue = document.getElementById('branch-value').value;
+                    const numItems = parseInt(document.getElementById('num-items').value);
+
+                    // Filter and print data based on user input
+                    const filteredData = data.filter(item => item[filterKey] >= filterValue && item.branch_code === branchValue);
+
+                    // Clear the previous table
+                    tableHead.innerHTML = '';
+                    tableBody.innerHTML = '';
+
+                    // Use slice() to get the specified number of items from the filtered data
+                    const limitedItems = filteredData.slice(0, numItems);
+
+                    // Create table headers based on keys
+                    const keysToInclude = ['inst_code', 'inst_name', 'place', 'branch_code', filterKey];
+                    keysToInclude.forEach(key => {
+                        const th = document.createElement('th');
+                        th.textContent = key;
+                        tableHead.appendChild(th);
+                    });
+
+                    // Populate the table with data
+                    limitedItems.forEach(item => {
+                        const tr = document.createElement('tr');
+                        keysToInclude.forEach(key => {
+                            const td = document.createElement('td');
+                            td.textContent = item[key];
+                            tr.appendChild(td);
+                        });
+                        tableBody.appendChild(tr);
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching JSON data:', error);
+            });
+    </script>
+</body>
+
+</html>
